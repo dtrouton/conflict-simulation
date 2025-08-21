@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conflict Simulation Game</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div id="app">
+        <header class="header">
+            <h1>CONFLICT SIMULATION</h1>
+            <div class="speed-controls">
+                <label>Speed: </label>
+                <button id="speed-1x" class="speed-btn active">1x</button>
+                <button id="speed-2x" class="speed-btn">2x</button>
+                <button id="speed-4x" class="speed-btn">4x</button>
+            </div>
+        </header>
+
+        <div class="conflict-header">
+            <div id="conflict-title" class="conflict-title">Loading...</div>
+            <div id="conflict-duration" class="duration">Duration: 0:00</div>
+        </div>
+
+        <div class="countries-container">
+            <div id="country-a" class="country-card">
+                <div class="country-name">Country A</div>
+                <div class="territory-bar">
+                    <div class="territory-fill" style="width: 50%"></div>
+                </div>
+                <div class="territory-percent">50%</div>
+            </div>
+            
+            <div id="country-b" class="country-card">
+                <div class="country-name">Country B</div>
+                <div class="territory-bar">
+                    <div class="territory-fill" style="width: 50%"></div>
+                </div>
+                <div class="territory-percent">50%</div>
+            </div>
+        </div>
+
+        <div class="prediction-panel">
+            <h3>PREDICTION PANEL</h3>
+            <div class="prediction-controls">
+                <label>Winner: </label>
+                <select id="prediction-winner">
+                    <option value="">Select winner...</option>
+                </select>
+                <label>Confidence: </label>
+                <input type="range" id="confidence-slider" min="1" max="10" value="5">
+                <span id="confidence-value">5</span>
+                <button id="submit-prediction">Submit Prediction</button>
+            </div>
+        </div>
+
+        <div class="updates-feed">
+            <h3>LIVE UPDATES FEED</h3>
+            <div id="updates-list" class="updates-list"></div>
+        </div>
+
+        <div class="statistics">
+            <h3>STATISTICS</h3>
+            <div id="conflict-stats" class="stats-grid"></div>
+        </div>
+
+        <div class="user-predictions">
+            <h3>YOUR PREDICTIONS</h3>
+            <div id="prediction-stats">
+                <span>Accuracy: <span id="accuracy">0%</span> (<span id="correct">0</span>/<span id="total">0</span>)</span>
+                <span>Current Streak: <span id="streak">0</span></span>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/country.js"></script>
+    <script src="js/conflict.js"></script>
+    <script src="js/events.js"></script>
+    <script src="js/prediction.js"></script>
+    <script src="js/simulation.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

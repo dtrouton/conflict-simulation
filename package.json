@@ -1,0 +1,32 @@
+{
+  "name": "conflict-simulation",
+  "version": "1.0.0",
+  "description": "Web-based conflict simulation game",
+  "main": "index.html",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "serve": "python3 -m http.server 8000"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0",
+    "jest-environment-jsdom": "^29.0.0"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "setupFilesAfterEnv": ["<rootDir>/tests/setup.js"],
+    "collectCoverageFrom": [
+      "js/**/*.js",
+      "!js/main.js"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 70,
+        "functions": 75,
+        "lines": 75,
+        "statements": 75
+      }
+    }
+  }
+}
