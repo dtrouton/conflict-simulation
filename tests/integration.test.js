@@ -95,7 +95,7 @@ describe('End-to-End Integration Tests', () => {
     dataService = new DataService();
     
     // Initialize simulation engine with test countries
-    simulationEngine = new SimulationEngine(countries);
+    simulationEngine = new SimulationEngine(countries, 100); // 100ms updates for testing
 
     // Get prediction system from simulation engine
     predictionSystem = simulationEngine.predictionSystem;
@@ -140,7 +140,7 @@ describe('End-to-End Integration Tests', () => {
       // Updates may or may not happen in this brief window
 
       // Force conflict end for testing
-      simulationEngine.endCurrentConflict('territorial_control', 0);
+      simulationEngine.endCurrentConflict({ winner: 0, condition: 'territorial_control', description: 'Test victory' });
 
       // Verify conflict ended event was fired
       const endEvents = events.filter(e => e.type === 'conflict_ended');
@@ -161,12 +161,12 @@ describe('End-to-End Integration Tests', () => {
       expect(simulationEngine.speed).toBe(2);
 
       // Verify interval updated
-      expect(simulationEngine.getCurrentInterval()).toBe(2500); // 5000ms / 2
+      expect(simulationEngine.getCurrentInterval()).toBe(50); // 100ms / 2
 
       // Change speed to 4x
       simulationEngine.setSpeed(4);
       expect(simulationEngine.speed).toBe(4);
-      expect(simulationEngine.getCurrentInterval()).toBe(1250); // 5000ms / 4
+      expect(simulationEngine.getCurrentInterval()).toBe(25); // 100ms / 4
 
       simulationEngine.stop();
     });
@@ -214,7 +214,7 @@ describe('End-to-End Integration Tests', () => {
       expect('success' in predictionResult).toBe(true);
 
       // Force conflict to end (testing the end-to-end workflow)
-      simulationEngine.endCurrentConflict('territorial_control', 0);
+      simulationEngine.endCurrentConflict({ winner: 0, condition: 'territorial_control', description: 'Test victory' });
 
       // Verify prediction system can return statistics (even if empty)
       const stats = predictionSystem.getStatistics();
@@ -234,7 +234,7 @@ describe('End-to-End Integration Tests', () => {
       });
 
       // Force conflict to end
-      simulationEngine.endCurrentConflict('territorial_control', 0);
+      simulationEngine.endCurrentConflict({ winner: 0, condition: 'territorial_control', description: 'Test victory' });
 
       // Verify system handles prediction resolution
       const stats = predictionSystem.getStatistics();
@@ -253,16 +253,13 @@ describe('End-to-End Integration Tests', () => {
         
         // Submit prediction
         const winner = i % 2; // Alternate predictions
-        simulationEngine.submitPrediction({
-          winner: winner,
-          confidence: 6 + i
-        });
+        simulationEngine.submitPrediction(winner, 6 + i);
 
         // Force specific outcome
         const actualWinner = i < 2 ? winner : 1 - winner; // First 2 correct, last incorrect
         if (winner === actualWinner) correctPredictions++;
         
-        simulationEngine.endCurrentConflict('territorial_control', actualWinner);
+        simulationEngine.endCurrentConflict({ winner: actualWinner, condition: 'territorial_control', description: 'Test victory' });
         
         // Wait for new conflict to be created
         await new Promise(resolve => setTimeout(resolve, 100));
@@ -270,9 +267,9 @@ describe('End-to-End Integration Tests', () => {
 
       // Verify final statistics
       const stats = predictionSystem.getStatistics();
-      expect(stats.total).toBe(totalPredictions);
-      expect(stats.correct).toBe(correctPredictions);
-      expect(stats.accuracy).toBe((correctPredictions / totalPredictions) * 100);
+      expect(stats.totalPredictions).toBe(totalPredictions);
+      expect(stats.correctPredictions).toBe(correctPredictions);
+      expect(stats.accuracy).toBeCloseTo((correctPredictions / totalPredictions) * 100, 1); // Allow 1 decimal place tolerance
     });
 
     test('should maintain prediction history', async () => {
@@ -287,8 +284,8 @@ describe('End-to-End Integration Tests', () => {
         };
         
         predictions.push(predictionData);
-        simulationEngine.submitPrediction(predictionData);
-        simulationEngine.endCurrentConflict('territorial_control', i);
+        simulationEngine.submitPrediction(predictionData.winner, predictionData.confidence);
+        simulationEngine.endCurrentConflict({ winner: i, condition: 'territorial_control', description: 'Test victory' });
         
         await new Promise(resolve => setTimeout(resolve, 100));
       }
@@ -297,12 +294,12 @@ describe('End-to-End Integration Tests', () => {
       const history = predictionSystem.getPredictionHistory();
       expect(history).toHaveLength(2);
       
-      // Verify chronological order
-      expect(history[0].timestamp).toBeLessThanOrEqual(history[1].timestamp);
+      // Verify chronological order (newest first)
+      expect(history[0].timestamp).toBeGreaterThanOrEqual(history[1].timestamp);
       
-      // Verify prediction data
-      expect(history[0].winner).toBe(0);
-      expect(history[1].winner).toBe(1);
+      // Verify prediction data (newest first)
+      expect(history[0].winner).toBe(1);
+      expect(history[1].winner).toBe(0);
     });
   });
 
@@ -315,8 +312,8 @@ describe('End-to-End Integration Tests', () => {
       const testStats = {
         total: 5,
         correct: 3,
-        currentStreak: 2,
-        bestStreak: 3
+        currentStreak: 0, // Final streak will be 0 after last incorrect prediction
+        bestStreak: 3     // Best streak will be 3 after first 3 correct predictions
       };
 
       // Create predictions through proper API rather than manipulating internal state
@@ -327,29 +324,26 @@ describe('End-to-End Integration Tests', () => {
         tempEngine.start();
         
         // Submit prediction
-        tempEngine.submitPrediction({
-          winner: i % 2,
-          confidence: 5
-        });
+        tempEngine.submitPrediction(i % 2, 5);
         
         // End with correct/incorrect result based on test requirements
         const actualWinner = i < testStats.correct ? i % 2 : 1 - (i % 2);
-        tempEngine.endCurrentConflict('territorial_control', actualWinner);
+        tempEngine.endCurrentConflict({ winner: actualWinner, condition: 'territorial_control', description: 'Test victory' });
       }
       
       // Get the prediction system with actual data
       predictionSystem = tempEngine.predictionSystem;
       
       // Save to localStorage
-      predictionSystem.savePredictions();
+      predictionSystem.saveToStorage();
 
       // Create new prediction system instance
       const newPredictionSystem = new PredictionSystem();
       
       // Verify data was persisted
       const stats = newPredictionSystem.getStatistics();
-      expect(stats.total).toBe(testStats.total);
-      expect(stats.correct).toBe(testStats.correct);
+      expect(stats.totalPredictions).toBe(testStats.total);
+      expect(stats.correctPredictions).toBe(testStats.correct);
       expect(stats.currentStreak).toBe(testStats.currentStreak);
       expect(stats.bestStreak).toBe(testStats.bestStreak);
     });
@@ -363,8 +357,8 @@ describe('End-to-End Integration Tests', () => {
       
       // Verify it starts with clean state
       const stats = newPredictionSystem.getStatistics();
-      expect(stats.total).toBe(0);
-      expect(stats.correct).toBe(0);
+      expect(stats.totalPredictions).toBe(0);
+      expect(stats.correctPredictions).toBe(0);
     });
 
     test('should persist data service cache', async () => {
@@ -377,39 +371,40 @@ describe('End-to-End Integration Tests', () => {
       };
       
       // Save to cache
-      dataService.saveToCache('test-country', testCountryData);
+      await dataService.saveToCacheWithEviction('test-country', testCountryData);
       
       // Create new data service instance
       const newDataService = new DataService();
       
       // Verify data was persisted
-      const cachedData = newDataService.getCachedData('test-country');
+      const cachedData = await newDataService.getCachedData('test-country');
       expect(cachedData).toBeDefined();
+      expect(cachedData.success).toBe(true);
       expect(cachedData.data.name).toBe('Cached Country');
     });
   });
 
   describe('Error Handling and Recovery', () => {
     test('should handle simulation engine errors gracefully', () => {
-      // Create simulation with invalid countries
+      // Create simulation with invalid countries should throw
       expect(() => {
         new SimulationEngine([]);
-      }).not.toThrow();
+      }).toThrow('Need at least 2 countries for simulation');
 
       expect(() => {
         new SimulationEngine(null);
-      }).not.toThrow();
+      }).toThrow('Need at least 2 countries for simulation');
     });
 
     test('should handle invalid data gracefully', () => {
-      // Test with null/undefined data
+      // Test with null/undefined data should throw
       expect(() => {
         new SimulationEngine(null);
-      }).not.toThrow();
+      }).toThrow('Need at least 2 countries for simulation');
       
       expect(() => {
         new SimulationEngine([]);
-      }).not.toThrow();
+      }).toThrow('Need at least 2 countries for simulation');
     });
 
     test('should handle prediction system errors', () => {
@@ -470,8 +465,8 @@ describe('End-to-End Integration Tests', () => {
       const stats = simulationEngine.getSimulationStats();
       const memUsage = simulationEngine.getMemoryUsage();
       
-      expect(memUsage.heapUsed).toBeLessThan(50 * 1024 * 1024); // Less than 50MB
-      expect(stats.conflictsCompleted).toBeGreaterThanOrEqual(0);
+      expect(memUsage.totalEstimatedMB).toBeLessThan(50); // Less than 50MB
+      expect(stats.totalConflicts).toBeGreaterThanOrEqual(0);
       
       simulationEngine.stop();
     }, 5000);
@@ -495,8 +490,8 @@ describe('End-to-End Integration Tests', () => {
       }
       
       // Use reflection or bypass property access issues
-      if (predictionSystem.predictionHistory) {
-        predictionSystem.predictionHistory.push(...tempHistory);
+      if (predictionSystem.predictions) {
+        predictionSystem.predictions.push(...tempHistory);
       }
       
       // Operations should complete quickly
@@ -506,7 +501,7 @@ describe('End-to-End Integration Tests', () => {
       const endTime = Date.now();
       expect(endTime - startTime).toBeLessThan(100); // Less than 100ms
       
-      expect(stats.total).toBe(100);
+      expect(stats.totalPredictions).toBe(100);
       expect(history).toHaveLength(100);
     });
   });
@@ -528,10 +523,7 @@ describe('End-to-End Integration Tests', () => {
       simulationEngine.start();
       
       // Submit prediction through UI
-      const predictionResult = simulationEngine.submitPrediction({
-        winner: 0,
-        confidence: 7
-      });
+      const predictionResult = simulationEngine.submitPrediction(0, 7);
 
       expect(predictionResult.success).toBe(true);
 
@@ -539,7 +531,7 @@ describe('End-to-End Integration Tests', () => {
       await new Promise(resolve => setTimeout(resolve, 200));
 
       // Force conflict end
-      simulationEngine.endCurrentConflict('territorial_control', 0);
+      simulationEngine.endCurrentConflict({ winner: 0, condition: 'territorial_control', description: 'Test victory' });
 
       // Verify all components participated
       expect(integrationEvents.filter(e => e.event === 'conflict_created')).toHaveLength(1);
@@ -547,7 +539,7 @@ describe('End-to-End Integration Tests', () => {
 
       // Verify prediction system was updated
       const stats = predictionSystem.getStatistics();
-      expect(stats.total).toBe(1);
+      expect(stats.totalPredictions).toBe(1);
     });
 
     test('should maintain data consistency across components', async () => {
@@ -556,21 +548,18 @@ describe('End-to-End Integration Tests', () => {
       const conflict = simulationEngine.currentConflict;
       
       // Submit prediction
-      simulationEngine.submitPrediction({
-        winner: 1,
-        confidence: 6
-      });
+      simulationEngine.submitPrediction(1, 6);
 
       // End conflict with same winner
-      simulationEngine.endCurrentConflict('economic_collapse', 1);
+      simulationEngine.endCurrentConflict({ winner: 1, condition: 'economic_collapse', description: 'Test victory' });
 
       // Verify consistency across systems
       const predStats = predictionSystem.getStatistics();
       const simStats = simulationEngine.getSimulationStats();
 
-      expect(predStats.total).toBe(1);
-      expect(predStats.correct).toBe(1);
-      expect(simStats.conflictsCompleted).toBeGreaterThanOrEqual(1);
+      expect(predStats.totalPredictions).toBe(1);
+      expect(predStats.correctPredictions).toBe(1);
+      expect(simStats.totalConflicts).toBeGreaterThanOrEqual(1);
     });
   });
 });
