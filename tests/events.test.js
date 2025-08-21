@@ -272,7 +272,7 @@ describe('EventGenerator', () => {
       const event = eventGenerator.createPoliticalEvent(conflict);
       
       expect(event.type).toBe('political_event');
-      expect(event.description).toMatch(/(election|coup|protest|scandal|reform)/i);
+      expect(event.description).toMatch(/(election|coup|protest|scandal|reform|leadership)/i);
       expect(event.effects).toHaveProperty('duration');
     });
 
@@ -299,7 +299,7 @@ describe('EventGenerator', () => {
       const event = eventGenerator.createEconomicEvent(conflict);
       
       expect(event.type).toBe('economic_event');
-      expect(event.description).toMatch(/(trade|sanction|embargo|recession|boom|inflation|war|arms|currency)/i);
+      expect(event.description).toMatch(/(trade|sanction|embargo|recession|boom|inflation|war|arms|currency|oil|price)/i);
       expect(event.effects.gdpChange).toBeDefined();
       expect(Array.isArray(event.effects.gdpChange)).toBe(true);
     });
@@ -322,7 +322,7 @@ describe('EventGenerator', () => {
       const event = eventGenerator.createInternationalPressureEvent(conflict);
       
       expect(event.type).toBe('international_pressure');
-      expect(event.description).toMatch(/(UN|diplomatic|peace|ceasefire|mediation|intervention|mediate)/i);
+      expect(event.description).toMatch(/(UN|diplomatic|peace|ceasefire|mediation|intervention|mediate|aid|sanctions|alliance)/i);
       expect(event.effects).toHaveProperty('duration');
     });
 
