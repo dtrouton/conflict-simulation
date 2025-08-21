@@ -490,3 +490,8 @@ class EventGenerator {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = EventGenerator;
 }
+
+// Export for browser
+if (typeof window !== 'undefined') {
+  window.EventGenerator = EventGenerator;
+}

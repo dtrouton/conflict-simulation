@@ -55,9 +55,17 @@ class SimulationEngine {
     this.updateTimes = [];
 
     // Initialize sub-systems
-    this.countrySelector = new (require('./country-selector'))(countries);
-    this.eventGenerator = new (require('./events'))(this.eventProbability);
-    this.predictionSystem = new (require('./prediction'))();
+    if (typeof require !== 'undefined') {
+      // Node.js environment (testing)
+      this.countrySelector = new (require('./country-selector'))(countries);
+      this.eventGenerator = new (require('./events'))(this.eventProbability);
+      this.predictionSystem = new (require('./prediction'))();
+    } else {
+      // Browser environment
+      this.countrySelector = new CountrySelector(countries);
+      this.eventGenerator = new EventGenerator(this.eventProbability);
+      this.predictionSystem = new PredictionSystem();
+    }
 
     // Event system for UI integration
     this.eventListeners = {};
@@ -377,7 +385,15 @@ class SimulationEngine {
    */
   createNewConflict() {
     const [countryA, countryB] = this.countrySelector.selectRandomPair();
-    this.currentConflict = new (require('./conflict'))(countryA, countryB);
+    
+    if (typeof require !== 'undefined') {
+      // Node.js environment (testing)
+      this.currentConflict = new (require('./conflict'))(countryA, countryB);
+    } else {
+      // Browser environment
+      this.currentConflict = new Conflict(countryA, countryB);
+    }
+    
     this.totalConflicts++;
 
     this.emit('conflict_created', {
@@ -562,4 +578,9 @@ class SimulationEngine {
 // Export for Node.js (testing)
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = SimulationEngine;
+}
+
+// Export for browser
+if (typeof window !== 'undefined') {
+  window.SimulationEngine = SimulationEngine;
 }

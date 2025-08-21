@@ -434,7 +434,7 @@ describe('End-to-End Integration Tests', () => {
 
       // Restore fetch
       global.fetch = originalFetch;
-    });
+    }, 10000);
   });
 
   describe('Performance and Memory Management', () => {

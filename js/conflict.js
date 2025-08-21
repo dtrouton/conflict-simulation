@@ -346,3 +346,8 @@ class Conflict {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = Conflict;
 }
+
+// Export for browser
+if (typeof window !== 'undefined') {
+  window.Conflict = Conflict;
+}

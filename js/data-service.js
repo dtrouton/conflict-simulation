@@ -825,3 +825,8 @@ class DataService {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = DataService;
 }
+
+// Export for browser
+if (typeof window !== 'undefined') {
+  window.DataService = DataService;
+}

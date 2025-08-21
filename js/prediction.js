@@ -331,3 +331,8 @@ class PredictionSystem {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = PredictionSystem;
 }
+
+// Export for browser
+if (typeof window !== 'undefined') {
+  window.PredictionSystem = PredictionSystem;
+}

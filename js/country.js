@@ -100,3 +100,8 @@ class Country {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = Country;
 }
+
+// Export for browser
+if (typeof window !== 'undefined') {
+  window.Country = Country;
+}

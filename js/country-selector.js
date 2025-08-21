@@ -205,3 +205,8 @@ class CountrySelector {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = CountrySelector;
 }
+
+// Export for browser
+if (typeof window !== 'undefined') {
+  window.CountrySelector = CountrySelector;
+}

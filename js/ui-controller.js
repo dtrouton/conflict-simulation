@@ -387,13 +387,30 @@ class UIController {
    * @returns {string} Tooltip text
    */
   createCountryTooltip(country) {
-    return [
-      `${country.name} (${country.code})`,
-      `Population: ${country.geography.population.toLocaleString()}`,
-      `Military: ${country.military.personnel.toLocaleString()}`,
-      `GDP: $${(country.economy.gdp / 1e12).toFixed(1)}T`,
-      `Nuclear: ${country.military.nuclear ? 'Yes' : 'No'}`
-    ].join('\n');
+    try {
+      const parts = [`${country.name} (${country.code})`];
+      
+      if (country.geography?.population) {
+        parts.push(`Population: ${country.geography.population.toLocaleString()}`);
+      }
+      
+      if (country.military?.personnel) {
+        parts.push(`Military: ${country.military.personnel.toLocaleString()}`);
+      }
+      
+      if (country.economy?.gdp) {
+        parts.push(`GDP: $${(country.economy.gdp / 1e6).toFixed(0)}M`);
+      }
+      
+      if (country.military?.nuclear !== undefined) {
+        parts.push(`Nuclear: ${country.military.nuclear ? 'Yes' : 'No'}`);
+      }
+      
+      return parts.join('\n');
+    } catch (error) {
+      console.warn('Error creating country tooltip:', error);
+      return `${country.name} (${country.code})`;
+    }
   }
 
   /**
@@ -877,6 +894,7 @@ class UIController {
    * @param {Object} data - Event data
    */
   handleConflictCreated(data) {
+    console.log('🎯 UI: Conflict created event received:', data);
     this.renderCountryCards(data.conflict);
     this.updateConflictHeader(data.conflict);
     this.addUpdateToFeed(`New conflict: ${data.countries[0].name} vs ${data.countries[1].name}`, 'conflict');
@@ -1018,4 +1036,9 @@ class UIController {
 // Export for Node.js (testing)
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = UIController;
+}
+
+// Export for browser
+if (typeof window !== 'undefined') {
+  window.UIController = UIController;
 }
