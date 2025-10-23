@@ -10,13 +10,30 @@
     <div id="app">
         <header class="header">
             <h1>CONFLICT SIMULATION</h1>
-            <div class="speed-controls">
+            <div class="speed-controls desktop-controls">
                 <label>Speed: </label>
                 <button id="speed-1x" class="speed-btn active">1x</button>
                 <button id="speed-2x" class="speed-btn">2x</button>
                 <button id="speed-4x" class="speed-btn">4x</button>
             </div>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-label="Toggle menu">
+                <span class="hamburger-icon"></span>
+            </button>
         </header>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="mobile-menu">
+            <div class="mobile-menu-content">
+                <div class="mobile-speed-controls">
+                    <label>Speed:</label>
+                    <div class="mobile-speed-buttons">
+                        <button class="mobile-speed-btn active" data-speed="1">1x</button>
+                        <button class="mobile-speed-btn" data-speed="2">2x</button>
+                        <button class="mobile-speed-btn" data-speed="4">4x</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div class="conflict-header">
             <div id="conflict-title" class="conflict-title">Loading...</div>
@@ -44,14 +61,28 @@
         <div class="prediction-panel">
             <h3>PREDICTION PANEL</h3>
             <div class="prediction-controls">
-                <label>Winner: </label>
-                <select id="prediction-winner">
+                <div class="prediction-input-group">
+                    <label>Winner: </label>
+                    <select id="prediction-winner">
+                        <option value="">Select winner...</option>
+                    </select>
+                </div>
+                <div class="prediction-input-group">
+                    <label>Confidence: </label>
+                    <input type="range" id="confidence-slider" min="1" max="10" value="5">
+                    <span id="confidence-value">5</span>
+                </div>
+                <button id="submit-prediction">Submit Prediction</button>
+            </div>
+        </div>
+
+        <!-- Mobile Bottom Controls -->
+        <div class="mobile-bottom-controls">
+            <div class="mobile-prediction-quick">
+                <select id="mobile-prediction-winner" class="mobile-select">
                     <option value="">Select winner...</option>
                 </select>
-                <label>Confidence: </label>
-                <input type="range" id="confidence-slider" min="1" max="10" value="5">
-                <span id="confidence-value">5</span>
-                <button id="submit-prediction">Submit Prediction</button>
+                <button id="mobile-submit-prediction" class="mobile-submit-btn">Predict</button>
             </div>
         </div>
 
