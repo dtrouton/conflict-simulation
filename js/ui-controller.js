@@ -77,6 +77,10 @@ class UIController {
       confidenceSlider: document.getElementById('confidence-slider'),
       confidenceValue: document.getElementById('confidence-value'),
       submitPrediction: document.getElementById('submit-prediction'),
+
+      // Mobile prediction interface
+      mobilePredictionWinner: document.getElementById('mobile-prediction-winner'),
+      mobileSubmitPrediction: document.getElementById('mobile-submit-prediction'),
       
       // Updates feed
       updatesList: document.getElementById('updates-list'),
@@ -149,11 +153,40 @@ class UIController {
         this.handlePredictionSubmission();
       };
       this.elements.submitPrediction.addEventListener('click', listener);
-      this.eventListeners.push({ 
-        element: this.elements.submitPrediction, 
-        event: 'click', 
-        listener 
+      this.eventListeners.push({
+        element: this.elements.submitPrediction,
+        event: 'click',
+        listener
       });
+    }
+
+    // Mobile prediction submission
+    if (this.elements.mobileSubmitPrediction) {
+      const listener = () => {
+        this.handleMobilePredictionSubmission();
+      };
+      this.elements.mobileSubmitPrediction.addEventListener('click', listener);
+      this.eventListeners.push({
+        element: this.elements.mobileSubmitPrediction,
+        event: 'click',
+        listener
+      });
+    }
+
+    // Sync mobile and desktop prediction dropdowns
+    if (this.elements.predictionWinner && this.elements.mobilePredictionWinner) {
+      const syncToMobile = (e) => {
+        this.elements.mobilePredictionWinner.value = e.target.value;
+      };
+      const syncToDesktop = (e) => {
+        this.elements.predictionWinner.value = e.target.value;
+      };
+      this.elements.predictionWinner.addEventListener('change', syncToMobile);
+      this.elements.mobilePredictionWinner.addEventListener('change', syncToDesktop);
+      this.eventListeners.push(
+        { element: this.elements.predictionWinner, event: 'change', listener: syncToMobile },
+        { element: this.elements.mobilePredictionWinner, event: 'change', listener: syncToDesktop }
+      );
     }
 
     // Mobile menu toggle
@@ -583,36 +616,67 @@ class UIController {
 
   /**
    * Update prediction interface for current conflict
-   * 
+   *
    * @param {Conflict} conflict - Current conflict instance
    */
   updatePredictionInterface(conflict) {
     try {
       const dropdown = this.elements.predictionWinner;
       const submitButton = this.elements.submitPrediction;
-      
-      if (!dropdown || !submitButton) return;
+      const mobileDropdown = this.elements.mobilePredictionWinner;
+      const mobileSubmitButton = this.elements.mobileSubmitPrediction;
 
       if (!conflict) {
-        dropdown.disabled = true;
-        submitButton.disabled = true;
-        dropdown.innerHTML = '<option value="">No active conflict</option>';
+        // Disable all prediction controls
+        if (dropdown) {
+          dropdown.disabled = true;
+          dropdown.innerHTML = '<option value="">No active conflict</option>';
+        }
+        if (submitButton) {
+          submitButton.disabled = true;
+        }
+        if (mobileDropdown) {
+          mobileDropdown.disabled = true;
+          mobileDropdown.innerHTML = '<option value="">No active conflict</option>';
+        }
+        if (mobileSubmitButton) {
+          mobileSubmitButton.disabled = true;
+        }
         return;
       }
 
-      dropdown.disabled = false;
-      submitButton.disabled = false;
-      
-      // Clear and repopulate dropdown
-      dropdown.innerHTML = '<option value="">Select winner...</option>';
-      
-      conflict.countries.forEach((country, index) => {
-        const option = document.createElement('option');
-        option.value = index;
-        option.textContent = country.name;
-        dropdown.appendChild(option);
-      });
-      
+      // Enable and populate desktop controls
+      if (dropdown && submitButton) {
+        dropdown.disabled = false;
+        submitButton.disabled = false;
+
+        // Clear and repopulate dropdown
+        dropdown.innerHTML = '<option value="">Select winner...</option>';
+
+        conflict.countries.forEach((country, index) => {
+          const option = document.createElement('option');
+          option.value = index;
+          option.textContent = country.name;
+          dropdown.appendChild(option);
+        });
+      }
+
+      // Enable and populate mobile controls
+      if (mobileDropdown && mobileSubmitButton) {
+        mobileDropdown.disabled = false;
+        mobileSubmitButton.disabled = false;
+
+        // Clear and repopulate mobile dropdown
+        mobileDropdown.innerHTML = '<option value="">Select winner...</option>';
+
+        conflict.countries.forEach((country, index) => {
+          const option = document.createElement('option');
+          option.value = index;
+          option.textContent = country.name;
+          mobileDropdown.appendChild(option);
+        });
+      }
+
     } catch (error) {
       console.warn('Error updating prediction interface:', error);
     }
@@ -620,30 +684,66 @@ class UIController {
 
   /**
    * Handle prediction submission
-   * 
+   *
    * @private
    */
   handlePredictionSubmission() {
     try {
       const winner = parseInt(this.elements.predictionWinner.value);
       const confidence = parseInt(this.elements.confidenceSlider.value);
-      
+
       if (isNaN(winner) || isNaN(confidence)) {
         this.showNotification('Please select a winner and confidence level', 'error');
         return;
       }
 
       const result = this.simulationEngine.submitPrediction(winner, confidence);
-      
+
       if (result.success) {
         this.showNotification('Prediction submitted successfully!', 'success');
         this.elements.submitPrediction.disabled = true;
+        if (this.elements.mobileSubmitPrediction) {
+          this.elements.mobileSubmitPrediction.disabled = true;
+        }
       } else {
         this.showNotification(result.error || 'Failed to submit prediction', 'error');
       }
-      
+
     } catch (error) {
       console.warn('Error handling prediction submission:', error);
+      this.showNotification('Error submitting prediction', 'error');
+    }
+  }
+
+  /**
+   * Handle mobile prediction submission
+   *
+   * @private
+   */
+  handleMobilePredictionSubmission() {
+    try {
+      const winner = parseInt(this.elements.mobilePredictionWinner.value);
+      const confidence = 5; // Default confidence for mobile quick predictions
+
+      if (isNaN(winner)) {
+        this.showNotification('Please select a winner', 'error');
+        return;
+      }
+
+      const result = this.simulationEngine.submitPrediction(winner, confidence);
+
+      if (result.success) {
+        this.showNotification('Prediction submitted!', 'success');
+        this.elements.mobileSubmitPrediction.disabled = true;
+        if (this.elements.submitPrediction) {
+          this.elements.submitPrediction.disabled = true;
+        }
+      } else {
+        this.showNotification(result.error || 'Failed to submit prediction', 'error');
+      }
+
+    } catch (error) {
+      console.warn('Error handling mobile prediction submission:', error);
       this.showNotification('Error submitting prediction', 'error');
     }
   }
@@ -919,17 +1019,20 @@ class UIController {
 
   /**
    * Handle conflict end event
-   * 
+   *
    * @private
    * @param {Object} data - Event data
    */
   handleConflictEnded(data) {
     const winner = data.conflict.countries[data.victory.winner];
     this.addUpdateToFeed(`Conflict ended: ${winner.name} wins by ${data.victory.condition}`, 'conflict');
-    
+
     // Re-enable prediction submission for next conflict
     if (this.elements.submitPrediction) {
       this.elements.submitPrediction.disabled = false;
+    }
+    if (this.elements.mobileSubmitPrediction) {
+      this.elements.mobileSubmitPrediction.disabled = false;
     }
   }
 
