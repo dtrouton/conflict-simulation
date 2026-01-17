@@ -797,13 +797,13 @@ class UIController {
       
       // Format and display various statistics
       const statItems = [
-        { 
-          label: 'Territory Control', 
-          value: `${Math.round(stats.territoryControl?.[0] || 0)}% - ${Math.round(stats.territoryControl?.[1] || 0)}%` 
+        {
+          label: 'Territory Control',
+          value: `${Math.round(stats.territoryControl?.[0] || 0)}% - ${Math.round(stats.territoryControl?.[1] || 0)}%`
         },
-        { 
-          label: 'Casualties', 
-          value: `${(stats.casualties?.[0] || 0).toLocaleString()} - ${(stats.casualties?.[1] || 0).toLocaleString()}` 
+        {
+          label: 'Casualties',
+          value: (stats.casualties || 0).toLocaleString()
         },
         { 
           label: 'Economic Impact', 
