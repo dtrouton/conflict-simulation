@@ -225,7 +225,9 @@ class Conflict {
     // 3. Diplomatic Resolution (random chance increases over time)
     const diplomacyChance = Math.min(this.duration / 1000, 0.15); // Max 15% at 1000 ticks
     if (Math.random() < diplomacyChance) {
-      const winner = Math.random() < 0.5 ? 0 : 1;
+      // Winner favors current territory leader (70% chance for leader, 30% for underdog)
+      const leaderIndex = this.territoryControl[0] > this.territoryControl[1] ? 0 : 1;
+      const winner = Math.random() < 0.7 ? leaderIndex : 1 - leaderIndex;
       return {
         hasWinner: true,
         winner,

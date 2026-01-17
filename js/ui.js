@@ -19,11 +19,12 @@ if (typeof window !== 'undefined') {
           name: 'United States',
           code: 'US',
           military: {
-            expenditure: 778000,
-            personnel: 1400000
+            expenditure: 778000000000,  // $778 billion
+            personnel: 1400000,
+            nuclear: true
           },
           economy: {
-            gdp: 21430000,
+            gdp: 21430000000000,  // $21.43 trillion
             gdpPerCapita: 65000
           },
           geography: {
@@ -40,11 +41,12 @@ if (typeof window !== 'undefined') {
           name: 'China',
           code: 'CN',
           military: {
-            expenditure: 261000,
-            personnel: 2035000
+            expenditure: 261000000000,  // $261 billion
+            personnel: 2035000,
+            nuclear: true
           },
           economy: {
-            gdp: 14342000,
+            gdp: 14342000000000,  // $14.34 trillion
             gdpPerCapita: 10500
           },
           geography: {
@@ -61,11 +63,12 @@ if (typeof window !== 'undefined') {
           name: 'Russia',
           code: 'RU',
           military: {
-            expenditure: 65100,
-            personnel: 1014000
+            expenditure: 65100000000,  // $65.1 billion
+            personnel: 1014000,
+            nuclear: true
           },
           economy: {
-            gdp: 1483000,
+            gdp: 1483000000000,  // $1.48 trillion
             gdpPerCapita: 10200
           },
           geography: {
@@ -82,11 +85,12 @@ if (typeof window !== 'undefined') {
           name: 'India',
           code: 'IN',
           military: {
-            expenditure: 72900,
-            personnel: 1455550
+            expenditure: 72900000000,  // $72.9 billion
+            personnel: 1455550,
+            nuclear: true
           },
           economy: {
-            gdp: 2875000,
+            gdp: 2875000000000,  // $2.88 trillion
             gdpPerCapita: 2100
           },
           geography: {
@@ -103,11 +107,12 @@ if (typeof window !== 'undefined') {
           name: 'United Kingdom',
           code: 'GB',
           military: {
-            expenditure: 59200,
-            personnel: 153290
+            expenditure: 59200000000,  // $59.2 billion
+            personnel: 153290,
+            nuclear: true
           },
           economy: {
-            gdp: 2829000,
+            gdp: 2829000000000,  // $2.83 trillion
             gdpPerCapita: 42330
           },
           geography: {
