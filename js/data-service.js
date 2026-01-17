@@ -44,7 +44,7 @@ class DataService {
    * Fetch country data with retry logic and caching
    * 
    * @param {string} countryCode - ISO country code
-   * @returns {Object} Result with success status and data
+   * @returns {Promise<Object>} Result with success status and data
    */
   async fetchCountryData(countryCode) {
     try {
@@ -75,7 +75,7 @@ class DataService {
    * Fetch multiple countries in batches for efficiency
    * 
    * @param {Array} countryCodes - Array of ISO country codes
-   * @returns {Object} Result with countries array and failure info
+   * @returns {Promise<Object>} Result with countries array and failure info
    */
   async batchFetchCountries(countryCodes) {
     const countries = [];
@@ -123,7 +123,7 @@ class DataService {
    * Get cached data if fresh, otherwise return failure
    * 
    * @param {string} countryCode - ISO country code
-   * @returns {Object} Cached data or failure reason
+   * @returns {Promise<Object>} Cached data or failure reason
    */
   async getCachedData(countryCode) {
     try {
@@ -152,7 +152,7 @@ class DataService {
         timestamp: cacheData.timestamp
       };
 
-    } catch (error) {
+    } catch (_error) {
       // Handle corrupted cache data
       const cacheKey = this.cachePrefix + countryCode;
       localStorage.removeItem(cacheKey);
@@ -164,7 +164,7 @@ class DataService {
    * Fetch from API with exponential backoff retry logic
    * 
    * @param {string} countryCode - ISO country code
-   * @returns {Object} API fetch result
+   * @returns {Promise<Object>} API fetch result
    */
   async fetchFromAPIWithRetry(countryCode) {
     let lastError;
@@ -205,7 +205,7 @@ class DataService {
    * Fetch country data from CIA World Factbook API
    * 
    * @param {string} countryCode - ISO country code
-   * @returns {Object} Normalized country data
+   * @returns {Promise<Object>} Normalized country data
    */
   async fetchFromAPI(countryCode) {
     const controller = new AbortController();
@@ -228,7 +228,7 @@ class DataService {
           success: false,
           status: response.status,
           error: `API returned ${response.status}: ${response.statusText}`,
-          retryAfter: response.headers.get('Retry-After') * 1000
+          retryAfter: Number(response.headers.get('Retry-After') || 0) * 1000
         };
       }
 
@@ -268,7 +268,7 @@ class DataService {
    * Fetch a batch of countries efficiently
    * 
    * @param {Array} countryCodes - Batch of country codes
-   * @returns {Object} Batch result with countries and failures
+   * @returns {Promise<Object>} Batch result with countries and failures
    */
   async fetchBatch(countryCodes) {
     const countries = [];
@@ -307,7 +307,7 @@ class DataService {
         }
       }
 
-    } catch (error) {
+    } catch (_error) {
       // If batch fetch fails, try individual fallbacks
       for (const countryCode of countryCodes) {
         const fallback = this.getFallbackData(countryCode);
@@ -489,7 +489,7 @@ class DataService {
   /**
    * Extract alliances (placeholder - would need additional data source)
    */
-  extractAlliances(data) {
+  extractAlliances(_data) {
     // This would require additional API integration
     // For now, return empty array
     return [];
@@ -498,7 +498,7 @@ class DataService {
   /**
    * Extract resources (placeholder - would need additional data source)
    */
-  extractResources(data) {
+  extractResources(_data) {
     // This would require additional API integration
     // For now, return empty array
     return [];
@@ -583,7 +583,7 @@ class DataService {
             key: key,
             lastAccessed: data.lastAccessed || 0
           });
-        } catch (error) {
+        } catch (_error) {
           // Remove corrupted entry
           localStorage.removeItem(key);
         }
@@ -616,7 +616,7 @@ class DataService {
           if (!this.isDataFresh(data)) {
             keysToRemove.push(key);
           }
-        } catch (error) {
+        } catch (_error) {
           // Remove corrupted entries
           keysToRemove.push(key);
         }
@@ -684,9 +684,9 @@ class DataService {
   validateCountryData(data) {
     const requiredFields = ['name', 'code', 'population', 'area', 'gdp'];
     
-    return requiredFields.every(field => 
-      data.hasOwnProperty(field) && 
-      data[field] !== undefined && 
+    return requiredFields.every(field =>
+      Object.hasOwn(data, field) &&
+      data[field] !== undefined &&
       data[field] !== null
     );
   }
@@ -719,7 +719,7 @@ class DataService {
    * Prefetch likely countries based on selection algorithm
    * 
    * @param {Array} countryCodes - Countries likely to be selected
-   * @returns {Object} Prefetch results
+   * @returns {Promise<Object>} Prefetch results
    */
   async prefetchLikelyCountries(countryCodes) {
     try {

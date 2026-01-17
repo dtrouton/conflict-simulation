@@ -8,9 +8,9 @@
 
 // Import all required classes
 const Country = require('../js/country.js');
-const CountrySelector = require('../js/country-selector.js');
-const Conflict = require('../js/conflict.js');
-const EventGenerator = require('../js/events.js');
+const _CountrySelector = require('../js/country-selector.js');
+const _Conflict = require('../js/conflict.js');
+const _EventGenerator = require('../js/events.js');
 const PredictionSystem = require('../js/prediction.js');
 const SimulationEngine = require('../js/simulation.js');
 const DataService = require('../js/data-service.js');
@@ -179,7 +179,7 @@ describe('End-to-End Integration Tests', () => {
       
       // Get current state
       const stats = simulationEngine.getSimulationStats();
-      const conflictsCompleted = stats.conflictsCompleted;
+      const _conflictsCompleted = stats.conflictsCompleted;
 
       // Stop simulation
       simulationEngine.stop();
@@ -228,7 +228,7 @@ describe('End-to-End Integration Tests', () => {
       simulationEngine.start();
       
       // Submit prediction
-      const predictionResult = simulationEngine.submitPrediction({
+      const _predictionResult = simulationEngine.submitPrediction({
         winner: 1, // Second country
         confidence: 7
       });
@@ -511,11 +511,11 @@ describe('End-to-End Integration Tests', () => {
       const integrationEvents = [];
 
       // Set up comprehensive event tracking
-      simulationEngine.on('conflict_created', (data) => {
+      simulationEngine.on('conflict_created', (_data) => {
         integrationEvents.push({ component: 'simulation', event: 'conflict_created' });
       });
-      
-      simulationEngine.on('update', (data) => {
+
+      simulationEngine.on('update', (_data) => {
         integrationEvents.push({ component: 'simulation', event: 'update' });
       });
 
@@ -544,9 +544,9 @@ describe('End-to-End Integration Tests', () => {
 
     test('should maintain data consistency across components', async () => {
       simulationEngine.start();
-      
-      const conflict = simulationEngine.currentConflict;
-      
+
+      const _conflict = simulationEngine.currentConflict;
+
       // Submit prediction
       simulationEngine.submitPrediction(1, 6);
 

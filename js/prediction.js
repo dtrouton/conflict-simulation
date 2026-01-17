@@ -304,8 +304,6 @@ class PredictionSystem {
 
   /**
    * Save prediction data to localStorage
-   * 
-   * @private
    */
   saveToStorage() {
     if (typeof localStorage === 'undefined') {

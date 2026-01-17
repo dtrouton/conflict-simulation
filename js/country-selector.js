@@ -165,6 +165,11 @@ class CountrySelector {
     return Math.min(finalScore, 1);
   }
 
+  /**
+   * Select a random pair of countries weighted by conflict probability
+   *
+   * @returns {[Country, Country]} Pair of countries
+   */
   selectRandomPair() {
     if (this.countries.length < 2) {
       throw new Error('Need at least 2 countries to select a pair');
@@ -192,12 +197,12 @@ class CountrySelector {
     for (let i = 0; i < probabilities.length; i++) {
       random -= probabilities[i];
       if (random <= 0) {
-        return pairs[i];
+        return /** @type {[Country, Country]} */ (pairs[i]);
       }
     }
-    
+
     // Fallback to last pair (shouldn't happen)
-    return pairs[pairs.length - 1];
+    return /** @type {[Country, Country]} */ (pairs[pairs.length - 1]);
   }
 }
 

@@ -286,7 +286,7 @@ class UIController {
       };
 
       const handleTouchEnd = (e) => {
-        if (!e.changedTouches.length) return;
+        if (!e.changedTouches.length) {return;}
         
         const touch = e.changedTouches[0];
         const deltaX = touch.clientX - this.touchHandler.startX;
@@ -399,7 +399,7 @@ class UIController {
    */
   renderEmptyCountryCards() {
     const cards = [this.elements.countryA, this.elements.countryB];
-    cards.forEach((card, index) => {
+    cards.forEach((card, _index) => {
       if (card) {
         const nameElement = card.querySelector('.country-name');
         if (nameElement) {
@@ -512,7 +512,7 @@ class UIController {
    * @param {string} type - 'gaining' or 'losing'
    */
   addChangeIndicator(element, type) {
-    if (!element) return;
+    if (!element) {return;}
     
     element.classList.add(type);
     setTimeout(() => {
@@ -528,7 +528,7 @@ class UIController {
    */
   addUpdateToFeed(text, type = 'general') {
     try {
-      if (!text || !this.elements.updatesList) return;
+      if (!text || !this.elements.updatesList) {return;}
 
       const updateItem = document.createElement('div');
       updateItem.className = 'update-item';
@@ -578,7 +578,7 @@ class UIController {
    */
   handleSpeedChange(speed) {
     try {
-      if (typeof speed !== 'number' || speed <= 0) return;
+      if (typeof speed !== 'number' || speed <= 0) {return;}
       
       this.simulationEngine.setSpeed(speed);
       this.updateSpeedDisplay(speed);
@@ -655,7 +655,7 @@ class UIController {
 
         conflict.countries.forEach((country, index) => {
           const option = document.createElement('option');
-          option.value = index;
+          option.value = String(index);
           option.textContent = country.name;
           dropdown.appendChild(option);
         });
@@ -671,7 +671,7 @@ class UIController {
 
         conflict.countries.forEach((country, index) => {
           const option = document.createElement('option');
-          option.value = index;
+          option.value = String(index);
           option.textContent = country.name;
           mobileDropdown.appendChild(option);
         });
@@ -791,7 +791,7 @@ class UIController {
    */
   updateStatistics(stats) {
     try {
-      if (!stats || !this.elements.conflictStats) return;
+      if (!stats || !this.elements.conflictStats) {return;}
 
       this.elements.conflictStats.innerHTML = '';
       
@@ -837,7 +837,7 @@ class UIController {
    */
   updatePredictionStats(predictionStats) {
     try {
-      if (!predictionStats) return;
+      if (!predictionStats) {return;}
 
       if (this.elements.accuracy) {
         this.elements.accuracy.textContent = `${predictionStats.accuracy || 0}%`;
@@ -994,7 +994,6 @@ class UIController {
    * @param {Object} data - Event data
    */
   handleConflictCreated(data) {
-    console.log('🎯 UI: Conflict created event received:', data);
     this.renderCountryCards(data.conflict);
     this.updateConflictHeader(data.conflict);
     this.addUpdateToFeed(`New conflict: ${data.countries[0].name} vs ${data.countries[1].name}`, 'conflict');
@@ -1065,21 +1064,21 @@ class UIController {
 
   /**
    * Handle simulation start
-   * 
+   *
    * @private
-   * @param {Object} data - Event data
+   * @param {Object} _data - Event data (unused)
    */
-  handleSimulationStarted(data) {
+  handleSimulationStarted(_data) {
     this.addUpdateToFeed('Simulation started', 'system');
   }
 
   /**
    * Handle simulation stop
-   * 
+   *
    * @private
-   * @param {Object} data - Event data
+   * @param {Object} _data - Event data (unused)
    */
-  handleSimulationStopped(data) {
+  handleSimulationStopped(_data) {
     this.addUpdateToFeed('Simulation stopped', 'system');
   }
 

@@ -1,9 +1,9 @@
 const SimulationEngine = require('../js/simulation');
 const Country = require('../js/country');
-const CountrySelector = require('../js/country-selector');
-const Conflict = require('../js/conflict');
-const EventGenerator = require('../js/events');
-const PredictionSystem = require('../js/prediction');
+const _CountrySelector = require('../js/country-selector');
+const _Conflict = require('../js/conflict');
+const _EventGenerator = require('../js/events');
+const _PredictionSystem = require('../js/prediction');
 
 // Mock timers for testing
 jest.useFakeTimers();
@@ -370,8 +370,8 @@ describe('SimulationEngine', () => {
   describe('prediction integration', () => {
     test('should allow prediction submission for current conflict', () => {
       simulationEngine.start();
-      const conflict = simulationEngine.currentConflict;
-      
+      const _conflict = simulationEngine.currentConflict;
+
       const result = simulationEngine.submitPrediction(0, 7);
       
       expect(result.success).toBe(true);
@@ -388,12 +388,13 @@ describe('SimulationEngine', () => {
     test('should automatically resolve predictions when conflict ends', () => {
       simulationEngine.start();
       const conflict = simulationEngine.currentConflict;
-      
+
       const predictionResult = simulationEngine.submitPrediction(0, 8);
       expect(predictionResult.success).toBe(true);
-      
-      // Manually trigger conflict end through victory conditions
-      conflict.territoryControl = [75, 25]; // Trigger territorial victory
+
+      // Set territory high enough that victory triggers even after updateTerritoryControl
+      // (which runs before checkVictoryConditions and can reduce territory by up to 4%)
+      conflict.territoryControl = [80, 20]; // Trigger territorial victory
       simulationEngine.processUpdate();
       
       // Check prediction was resolved

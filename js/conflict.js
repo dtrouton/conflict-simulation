@@ -80,7 +80,7 @@ class Conflict {
     const economicRatio = economicA / (economicA + economicB);
     
     // Territory control momentum (defender's advantage vs attacker's momentum)
-    const [territoryA, territoryB] = this.territoryControl;
+    const [territoryA] = this.territoryControl;
     let territoryFactor = 0.5; // Neutral
     
     if (territoryA > 60) {

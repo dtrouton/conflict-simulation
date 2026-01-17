@@ -156,11 +156,11 @@ class EventGenerator {
 
   /**
    * Create a natural disaster event
-   * 
-   * @param {Conflict} conflict - Current conflict context
+   *
+   * @param {Conflict} _conflict - Current conflict context (unused, events are context-independent)
    * @returns {Object} Natural disaster event
    */
-  createNaturalDisasterEvent(conflict) {
+  createNaturalDisasterEvent(_conflict) {
     const disasters = [
       {
         name: 'Major Earthquake',

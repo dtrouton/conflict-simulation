@@ -3,7 +3,7 @@
  */
 
 const UIController = require('../js/ui-controller');
-const SimulationEngine = require('../js/simulation');
+const _SimulationEngine = require('../js/simulation');
 const Country = require('../js/country');
 const Conflict = require('../js/conflict');
 

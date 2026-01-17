@@ -321,8 +321,7 @@ class SimulationEngine {
 
   /**
    * End current conflict and handle predictions
-   * 
-   * @private
+   *
    * @param {Object} victory - Victory result object
    */
   endCurrentConflict(victory) {
@@ -544,14 +543,19 @@ class SimulationEngine {
 
   /**
    * Remove event listener
-   * 
-   * @param {string} event - Event name  
-   * @param {Function} callback - Event callback to remove
+   *
+   * @param {string} event - Event name
+   * @param {Function} [callback] - Event callback to remove. If omitted, removes all listeners for the event.
    */
   off(event, callback) {
     if (this.eventListeners[event]) {
-      this.eventListeners[event] = this.eventListeners[event]
-        .filter(cb => cb !== callback);
+      if (callback) {
+        this.eventListeners[event] = this.eventListeners[event]
+          .filter(cb => cb !== callback);
+      } else {
+        // Remove all listeners for this event
+        this.eventListeners[event] = [];
+      }
     }
   }
 
