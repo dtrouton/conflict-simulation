@@ -66,7 +66,12 @@ class Country {
     // Calculate distance using shared utility
     const calcDist = typeof GeoUtils !== 'undefined'
       ? GeoUtils.calculateDistance
-      : require('./utils').calculateDistance;
+      : typeof require !== 'undefined'
+        ? require('./utils').calculateDistance
+        : null;
+    if (!calcDist) {
+      throw new Error('GeoUtils not loaded - ensure utils.js is included before country.js');
+    }
     const distance = calcDist(lat1, lon1, lat2, lon2);
 
     // Convert distance to advantage (closer = higher advantage)
