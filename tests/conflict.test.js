@@ -118,14 +118,22 @@ describe('Conflict', () => {
         ...chinaData,
         military: { ...chinaData.military, nuclear: false }
       });
-      
-      const nuclearConflict = new Conflict(usa, nonNuclearCountry);
-      const regularConflict = new Conflict(usa, china);
-      
-      const nuclearProb = nuclearConflict.calculateBattleOutcome();
-      const regularProb = regularConflict.calculateBattleOutcome();
-      
-      expect(nuclearProb).toBeGreaterThan(regularProb);
+
+      // Average multiple runs to account for random factor
+      let nuclearProbSum = 0;
+      let regularProbSum = 0;
+
+      for (let i = 0; i < 20; i++) {
+        const nuclearConflict = new Conflict(usa, nonNuclearCountry);
+        const regularConflict = new Conflict(usa, china);
+        nuclearProbSum += nuclearConflict.calculateBattleOutcome();
+        regularProbSum += regularConflict.calculateBattleOutcome();
+      }
+
+      const avgNuclearProb = nuclearProbSum / 20;
+      const avgRegularProb = regularProbSum / 20;
+
+      expect(avgNuclearProb).toBeGreaterThan(avgRegularProb);
     });
 
     test('should be affected by current territory control', () => {

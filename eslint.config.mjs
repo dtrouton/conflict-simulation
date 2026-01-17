@@ -11,6 +11,7 @@ const sharedClasses = {
   DataService: 'readonly',
   SimulationEngine: 'readonly',
   UIController: 'readonly',
+  GeoUtils: 'readonly',
 };
 
 export default [
@@ -26,6 +27,7 @@ export default [
       'js/data-service.js',
       'js/simulation.js',
       'js/ui-controller.js',
+      'js/utils.js',
     ],
     languageOptions: {
       ecmaVersion: 2022,

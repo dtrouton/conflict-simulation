@@ -16,42 +16,32 @@ class CountrySelector {
 
     const [lat1, lon1] = countryA.geography.capital;
     const [lat2, lon2] = countryB.geography.capital;
-    
-    // Calculate distance using same method as Country class
-    const distance = this.calculateDistance(lat1, lon1, lat2, lon2);
-    
+
+    // Calculate distance using shared utility
+    const calcDist = typeof GeoUtils !== 'undefined'
+      ? GeoUtils.calculateDistance
+      : require('./utils').calculateDistance;
+    const distance = calcDist(lat1, lon1, lat2, lon2);
+
     // Convert distance to proximity (closer = higher score)
     // Max meaningful distance ~15,000km for conflict relevance
     const normalizedDistance = Math.min(distance / 15000, 1);
     let proximity = 1 - normalizedDistance;
-    
+
     // Apply border bonus (40% increase if countries share a border)
     if (this.sharesBorder(countryA, countryB)) {
       proximity *= 1.4;
       proximity = Math.min(proximity, 1); // Cap at 1
     }
-    
+
     return Math.round(proximity * 1000) / 1000; // 3 decimal places
   }
 
   sharesBorder(countryA, countryB) {
     const bordersA = countryA.geography.borders || [];
     const bordersB = countryB.geography.borders || [];
-    
-    return bordersA.includes(countryB.code) || bordersB.includes(countryA.code);
-  }
 
-  calculateDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371; // Earth's radius in kilometers
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    
-    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-              Math.sin(dLon/2) * Math.sin(dLon/2);
-    
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return R * c;
+    return bordersA.includes(countryB.code) || bordersB.includes(countryA.code);
   }
 
   getHistoricalTension(countryA, countryB) {

@@ -14,7 +14,7 @@
 class SimulationEngine {
   /**
    * Initialize simulation engine with countries and configuration
-   * 
+   *
    * @param {Country[]} countries - Array of available countries
    * @param {number|Object} config - Update interval in ms or configuration object
    */
@@ -23,18 +23,21 @@ class SimulationEngine {
       throw new Error('Need at least 2 countries for simulation');
     }
 
-    // Handle both number (legacy) and object configuration
-    if (typeof config === 'number') {
-      this.updateInterval = config;
-      this.autoAdvance = true;
-      this.eventProbability = 0.15;
-    } else if (typeof config === 'object') {
-      this.updateInterval = config.updateInterval || 5000;
-      this.autoAdvance = config.autoAdvance !== undefined ? config.autoAdvance : true;
-      this.eventProbability = config.eventProbability || 0.15;
-    } else {
+    // Normalize config: convert number to object format
+    const defaults = { updateInterval: 5000, autoAdvance: true, eventProbability: 0.15 };
+    const normalized = typeof config === 'number'
+      ? { ...defaults, updateInterval: config }
+      : typeof config === 'object'
+        ? { ...defaults, ...config }
+        : null;
+
+    if (!normalized) {
       throw new Error('Configuration must be number or object');
     }
+
+    this.updateInterval = normalized.updateInterval;
+    this.autoAdvance = normalized.autoAdvance;
+    this.eventProbability = normalized.eventProbability;
 
     if (this.updateInterval <= 0) {
       throw new Error('Update interval must be positive');

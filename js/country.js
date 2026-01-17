@@ -62,31 +62,19 @@ class Country {
   getGeographicAdvantage(opponent) {
     const [lat1, lon1] = this.geography.capital;
     const [lat2, lon2] = opponent.geography.capital;
-    
-    // Calculate distance using Haversine formula
-    const distance = this.calculateDistance(lat1, lon1, lat2, lon2);
-    
+
+    // Calculate distance using shared utility
+    const calcDist = typeof GeoUtils !== 'undefined'
+      ? GeoUtils.calculateDistance
+      : require('./utils').calculateDistance;
+    const distance = calcDist(lat1, lon1, lat2, lon2);
+
     // Convert distance to advantage (closer = higher advantage)
     // Max distance on Earth ~20,000km, normalize to 0-1 scale
     const normalizedDistance = Math.min(distance / 20000, 1);
     const advantage = 1 - normalizedDistance;
-    
-    return Math.round(advantage * 100) / 100;
-  }
 
-  calculateDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371; // Earth's radius in kilometers
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    
-    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-              Math.sin(dLon/2) * Math.sin(dLon/2);
-    
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    const distance = R * c;
-    
-    return distance;
+    return Math.round(advantage * 100) / 100;
   }
 
   hasAlliance(allianceName) {
